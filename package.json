@@ -1,0 +1,6 @@
+{
+  "name": "boltjz",
+  "private": true,
+  "description": "Ferramentas e plataformas para a produção de conteúdo do canal Bolt",
+  "packageManager": "pnpm@9.4.0"
+}
