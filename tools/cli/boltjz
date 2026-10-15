@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# Comando único das ferramentas do Bolt.
+#
+# Uso:
+#   boltjz help
+#   boltjz upgrade
+#   boltjz narration <arquivo> [opções]
+#   boltjz cleanup <arquivo> [opções]
+#   boltjz youtube <url> [openai_api_key]
+#   boltjz reel <url> [openai_api_key]
+
+set -euo pipefail
+export LC_ALL=C
+
+source="${BASH_SOURCE[0]}"
+while [ -L "$source" ]; do
+    link_dir="$(cd "$(dirname "$source")" && pwd)"
+    source="$(readlink "$source")"
+    case "$source" in
+        /*) ;;
+        *) source="$link_dir/$source" ;;
+    esac
+done
+readonly SCRIPT_DIR="$(cd "$(dirname "$source")" && pwd)"
+readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+readonly VERSION_FILE="$REPO_ROOT/VERSION"
+readonly NARRATION="$REPO_ROOT/tools/narration/narration.sh"
+readonly CLEANUP="$REPO_ROOT/tools/cleanup/cleanup.py"
+readonly YOUTUBE="$REPO_ROOT/tools/transcribe/transcribe_youtube.sh"
+readonly REEL="$REPO_ROOT/tools/transcribe/transcribe_reel.sh"
+
+die() {
+    echo "Erro: $*" >&2
+    exit 1
+}
+
+usage() {
+    cat <<EOF
+boltjz — ferramentas de produção do canal Bolt.
+
+Comandos:
+  help        Mostra esta ajuda
+  -v          Mostra a versão local
+  upgrade     Atualiza o repositório quando o main publica uma versão nova
+  narration   Acelera a narração. Padrão: 1.25x e volume 2
+  cleanup     Corta pausas e frases repetidas
+  youtube     Transcreve o roteiro de um vídeo do YouTube
+  reel        Transcreve o roteiro de um Reel do Instagram
+
+Exemplos:
+  boltjz help
+  boltjz upgrade
+  boltjz narration narracao.wav
+  boltjz cleanup narracao.pace.mp3
+  boltjz youtube "https://www.youtube.com/watch?v=VIDEO_ID"
+  boltjz reel "https://www.instagram.com/reel/CODIGO/"
+
+Opções depois do arquivo ou da URL vão para a ferramenta.
+narration imprime OUTPUT=. cleanup imprime OUTPUT= e CUTS=.
+EOF
+}
+
+version_is_newer() {
+    awk -v remote="$1" -v local="$2" 'BEGIN {
+        split(remote, r, ".")
+        split(local, l, ".")
+        for (i = 1; i <= 3; i++) {
+            rv = r[i] + 0
+            lv = l[i] + 0
+            if (rv > lv) exit 0
+            if (rv < lv) exit 1
+        }
+        exit 1
+    }'
+}
+
+read_version() {
+    local file="$1"
+    if [ ! -f "$file" ]; then
+        die "VERSION não encontrado em $file"
+    fi
+    tr -d '[:space:]' < "$file"
+}
+
+upgrade() {
+    local local_version remote_version
+    local_version="$(read_version "$VERSION_FILE")"
+
+    if ! git -C "$REPO_ROOT" fetch origin main; then
+        die "Não foi possível buscar o main"
+    fi
+
+    if ! remote_version="$(git -C "$REPO_ROOT" show origin/main:VERSION 2>/dev/null | tr -d '[:space:]')" || [ -z "$remote_version" ]; then
+        echo "Não há versão publicada no main. Versão local: $local_version"
+        exit 0
+    fi
+
+    if [ "$local_version" = "$remote_version" ]; then
+        echo "Já está na versão $local_version"
+        exit 0
+    fi
+
+    if version_is_newer "$remote_version" "$local_version"; then
+        if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
+            die "A árvore de trabalho tem alterações. Guarde ou descarte antes de atualizar."
+        fi
+        if ! git -C "$REPO_ROOT" pull --ff-only origin main; then
+            die "Não foi possível atualizar com fast-forward"
+        fi
+        echo "Atualizado para $(read_version "$VERSION_FILE")"
+        exit 0
+    fi
+
+    echo "A versão local $local_version está à frente da publicada $remote_version"
+}
+
+run_tool() {
+    local tool="$1"
+    shift
+    if [ ! -x "$tool" ]; then
+        die "Ferramenta não encontrada: $tool"
+    fi
+    if [ $# -lt 1 ]; then
+        die "Informe o arquivo ou a URL. Rode: boltjz help"
+    fi
+    exec "$tool" "$@"
+}
+
+command_name="${1:-help}"
+if [ $# -gt 0 ]; then
+    shift
+fi
+
+case "$command_name" in
+    help|-h|--help)
+        usage
+        ;;
+    -v|--version)
+        read_version "$VERSION_FILE"
+        echo
+        ;;
+    upgrade)
+        upgrade
+        ;;
+    narration)
+        run_tool "$NARRATION" "$@"
+        ;;
+    cleanup)
+        run_tool "$CLEANUP" "$@"
+        ;;
+    youtube)
+        run_tool "$YOUTUBE" "$@"
+        ;;
+    reel)
+        run_tool "$REEL" "$@"
+        ;;
+    *)
+        die "Comando desconhecido: $command_name. Rode: boltjz help"
+        ;;
+esac
