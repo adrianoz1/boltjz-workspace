@@ -5,3 +5,4 @@ Ferramentas locais e scripts de produção. Cada uma é um projeto independente 
 | Pasta | O que faz |
 | --- | --- |
 | `transcribe/` | Transcreve o roteiro falado de um Reel ou de um vídeo do YouTube |
+| `narration/` | Acelera uma narração e sobe o volume, no padrão 1.25x do Bolt |
