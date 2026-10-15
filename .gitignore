@@ -19,3 +19,6 @@ cookies.txt
 proxies.txt
 reel_transcription_*/
 youtube_transcription_*/
+*.pace.mp3
+*.pace.wav
+*.pace.m4a
