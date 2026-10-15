@@ -22,3 +22,5 @@ youtube_transcription_*/
 *.pace.mp3
 *.pace.wav
 *.pace.m4a
+*.clean.wav
+*.cuts.json
