@@ -6,7 +6,7 @@
 #   boltjz help
 #   boltjz upgrade
 #   boltjz narration <arquivo> [opções]
-#   boltjz cleanup <arquivo> [opções]
+#   boltjz silence-detection <arquivo> [opções]
 #   boltjz youtube <url> [openai_api_key]
 #   boltjz reel <url> [openai_api_key]
 
@@ -44,7 +44,7 @@ Comandos:
   -v          Mostra a versão local
   upgrade     Atualiza o repositório quando o main publica uma versão nova
   narration   Acelera a narração. Padrão: 1.25x e volume 2
-  cleanup     Corta pausas e frases repetidas
+  silence-detection  Detecta e corta silêncio
   youtube     Transcreve o roteiro de um vídeo do YouTube
   reel        Transcreve o roteiro de um Reel do Instagram
 
@@ -52,12 +52,12 @@ Exemplos:
   boltjz help
   boltjz upgrade
   boltjz narration narracao.wav
-  boltjz cleanup narracao.pace.mp3
+  boltjz silence-detection narracao.pace.mp3
   boltjz youtube "https://www.youtube.com/watch?v=VIDEO_ID"
   boltjz reel "https://www.instagram.com/reel/CODIGO/"
 
 Opções depois do arquivo ou da URL vão para a ferramenta.
-narration imprime OUTPUT=. cleanup imprime OUTPUT= e CUTS=.
+narration imprime OUTPUT=. silence-detection imprime OUTPUT= e CUTS=.
 EOF
 }
 
@@ -146,7 +146,7 @@ case "$command_name" in
     narration)
         run_tool "$NARRATION" "$@"
         ;;
-    cleanup)
+    silence-detection|cleanup)
         run_tool "$CLEANUP" "$@"
         ;;
     youtube)

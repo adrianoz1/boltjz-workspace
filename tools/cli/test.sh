@@ -14,7 +14,7 @@ fail() {
 }
 
 help_text="$("$BOLTJZ" help)"
-for word in narration cleanup youtube reel upgrade; do
+for word in narration silence-detection youtube reel upgrade; do
     printf '%s\n' "$help_text" | grep -q "$word" || fail "help sem $word"
 done
 

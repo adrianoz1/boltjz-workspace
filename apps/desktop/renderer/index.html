@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bolt narração</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="explorer">
+      <header class="explorer-head">
+        <strong id="workspace-name">Projetos</strong>
+        <span class="explorer-actions">
+          <button id="workspace" type="button" title="Abrir pasta">Pasta</button>
+          <button id="toggle-explorer" class="icon-button" type="button" title="Minimizar">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.2 3.2 5.4 8l4.8 4.8-.9.9L3.6 8l5.7-5.7z"/></svg>
+          </button>
+        </span>
+      </header>
+      <form id="new-project">
+        <input id="project-name" placeholder="Nova pasta" />
+        <button type="submit">Criar</button>
+      </form>
+      <div id="tree" class="tree"></div>
+      <div id="tree-menu" class="tree-menu" hidden>
+        <button type="button" data-action="create">Novo arquivo</button>
+        <button type="button" data-action="show">Abrir pasta</button>
+        <button type="button" data-action="rename">Renomear</button>
+        <button type="button" data-action="remove">Excluir</button>
+      </div>
+    </aside>
+    <main>
+      <section class="record">
+        <label>
+          Microfone
+          <select id="mics"></select>
+        </label>
+        <button id="record" type="button">Gravar</button>
+        <span id="record-state"></span>
+      </section>
+      <div id="record-meter" hidden>
+        <canvas id="record-wave"></canvas>
+        <strong id="record-time">00:00,00</strong>
+      </div>
+      <div id="stage" class="stage">
+      <section id="take-view" hidden>
+        <h1><span id="take-name"></span> <span id="take-kind"></span></h1>
+        <div class="preview">
+          <button id="preview-skip" class="icon-button" type="button" title="Início">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h1.6v10H3zm10 1.2L6.4 8 13 11.8z"/></svg>
+          </button>
+          <button id="preview-play" class="icon-button" type="button" title="Reproduzir">
+            <svg class="play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.1v9.8l8-4.9z"/></svg>
+            <svg class="pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+          </button>
+          <button id="preview-stop" class="icon-button" type="button" title="Parar">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4h8v8H4z"/></svg>
+          </button>
+          <input id="preview-seek" type="range" min="0" max="1" step="0.01" value="0" />
+          <span id="preview-time">00:00.0 / 00:00.0</span>
+          <label class="volume preview-volume" title="Volume">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.2h2.1L8 3.4v9.2L4.1 9.8H2z"/><path d="M10.1 6.1a2.7 2.7 0 0 1 0 3.8M11.8 4.3a4.8 4.8 0 0 1 0 7.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <input id="preview-level" type="range" min="0" max="1" step="0.01" value="1" />
+          </label>
+        </div>
+        <div id="arrangement" class="arrangement">
+          <div class="arrangement-tools">
+            <button id="undo-arrange" class="icon-button" type="button" title="Voltar" disabled>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.4 3.1 3 6.5l3.4 3.4.9-.9L5.3 7.1H9a2.7 2.7 0 1 1 0 5.4H7.4v1.3H9a4 4 0 0 0 0-8H5.3l2-2z"/></svg>
+            </button>
+            <button id="redo-arrange" class="icon-button" type="button" title="Avançar" disabled>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 3.1 13 6.5 9.6 9.9l-.9-.9 2-2H7a2.7 2.7 0 1 0 0 5.4h1.6v1.3H7a4 4 0 0 1 0-8h3.7l-2-2z"/></svg>
+            </button>
+            <button id="split-clip" class="icon-button" type="button" title="Cortar">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.1 2.8a1.7 1.7 0 0 0-.7 2.6L6.6 8 4.4 10.6a1.7 1.7 0 1 0 1.1 1.1L8 8.8l2.5 2.9a1.7 1.7 0 1 0 1.1-1.1L9.4 8l2.2-2.6A1.7 1.7 0 1 0 10.5 4.3L8 7.2 5.5 4.3a1.7 1.7 0 0 0-.4-1.5zM4.2 4.2a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zm7.6 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zM4.2 13.2a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zm7.6 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4z"/></svg>
+            </button>
+            <button id="add-track" class="icon-button" type="button" title="Nova faixa">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.2h8.2v2.6H1.5zm0 6h8.2v2.6H1.5z"/><path d="M12.2 6.2h1.3v1.8H15.4v1.3h-1.9V11h-1.3V9.3H10.3V8h1.9z"/></svg>
+            </button>
+          </div>
+          <div class="wave-wrap arrangement-wave">
+            <canvas id="arrange-ruler"></canvas>
+            <canvas id="arrange-wave"></canvas>
+          </div>
+        </div>
+        <div id="take-tools" class="controls">
+          <label class="slider-field">Velocidade
+            <input id="speed-range" type="range" min="0.5" max="2" step="0.05" value="1.25" />
+            <input id="speed" type="number" min="0.5" max="2" step="0.05" value="1.25" />
+          </label>
+          <label class="slider-field">Volume
+            <input id="volume-range" type="range" min="0.1" max="4" step="0.1" value="2" />
+            <input id="volume" type="number" min="0.1" max="4" step="0.1" value="2" />
+          </label>
+          <span id="pace-status" class="hint" hidden>Processando…</span>
+          <button id="open-cut" type="button">Detecção de silêncio</button>
+          <button id="export" type="button">Exportar mp3</button>
+        </div>
+        <p id="status"></p>
+      </section>
+      <section id="doc-view" hidden>
+        <header class="doc-head">
+          <strong id="doc-name"></strong>
+          <span id="doc-status"></span>
+          <div class="doc-modes">
+            <button id="doc-mode-view" type="button">Ver</button>
+            <button id="doc-mode-edit" type="button">Editar</button>
+          </div>
+        </header>
+        <article id="doc-rendered"></article>
+        <textarea id="doc-editor" spellcheck="false"></textarea>
+      </section>
+      </div>
+      <p id="empty">Escolha um projeto e grave a narração.</p>
+    </main>
+    <div id="modal" class="modal" hidden>
+      <div class="sheet editor">
+        <header>
+          <strong>Detecção de silêncio</strong>
+          <button id="close-modal" class="icon-button" type="button" title="Fechar">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.8 3.2 8 7.4l4.2-4.2.8.8L8.8 8.2l4.2 4.2-.8.8L8 9l-4.2 4.2-.8-.8 4.2-4.2-4.2-4.2z"/></svg>
+          </button>
+        </header>
+        <div class="editor-body">
+          <div class="editor-stage">
+            <div class="transport">
+              <button id="skip-start" class="icon-button" type="button" title="Início">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h1.6v10H3zm10 1.2L6.4 8 13 11.8z"/></svg>
+              </button>
+              <button id="play" class="icon-button" type="button" title="Reproduzir">
+                <svg class="play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.1v9.8l8-4.9z"/></svg>
+                <svg class="pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+              </button>
+              <button id="stop" class="icon-button" type="button" title="Parar">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4h8v8H4z"/></svg>
+              </button>
+              <button id="play-selection" class="icon-button" type="button" title="Ouvir seleção">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.6 3h1.5v10H1.6zm11.3 0h1.5v10h-1.5zM6.2 4.7v6.6L11.2 8z"/></svg>
+              </button>
+              <span class="transport-gap"></span>
+              <label class="volume" title="Volume">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.2h2.1L8 3.4v9.2L4.1 9.8H2z"/><path d="M10.1 6.1a2.7 2.7 0 0 1 0 3.8M11.8 4.3a4.8 4.8 0 0 1 0 7.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input id="level" type="range" min="0" max="1" step="0.01" value="1" />
+              </label>
+              <span id="timecode">00:00.0 / 00:00.0</span>
+            </div>
+            <div class="wave-wrap editor-wave">
+              <canvas id="ruler"></canvas>
+              <canvas id="wave"></canvas>
+            </div>
+            <input id="pan" type="range" min="0" max="1000" value="0" />
+            <div class="tools">
+              <button id="cut-selection" class="icon-button" type="button" title="Cortar seleção">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.1 2.8a1.7 1.7 0 0 0-.7 2.6L6.6 8 4.4 10.6a1.7 1.7 0 1 0 1.1 1.1L8 8.8l2.5 2.9a1.7 1.7 0 1 0 1.1-1.1L9.4 8l2.2-2.6A1.7 1.7 0 1 0 10.5 4.3L8 7.2 5.5 4.3a1.7 1.7 0 0 0-.4-1.5zM4.2 4.2a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zm7.6 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zM4.2 13.2a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4zm7.6 0a.7.7 0 1 1 0-1.4.7.7 0 0 1 0 1.4z"/></svg>
+              </button>
+              <button id="restore-selection" class="icon-button" type="button" title="Devolver seleção">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 7.2 6.4 4v2.1h3.4a2.6 2.6 0 0 1 0 5.2H8.2v1.5h1.6a4.1 4.1 0 0 0 0-8.2H6.4V7.2z"/></svg>
+              </button>
+              <button id="undo-cut" class="icon-button" type="button" title="Voltar">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.4 3.1 3 6.5l3.4 3.4.9-.9L5.3 7.1H9a2.7 2.7 0 1 1 0 5.4H7.4v1.3H9a4 4 0 0 0 0-8H5.3l2-2z"/></svg>
+              </button>
+              <button id="redo-cut" class="icon-button" type="button" title="Avançar">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 3.1 13 6.5 9.6 9.9l-.9-.9 2-2H7a2.7 2.7 0 1 0 0 5.4h1.6v1.3H7a4 4 0 0 1 0-8h3.7l-2-2z"/></svg>
+              </button>
+              <span id="editor-status" class="hint">Arraste na onda para selecionar.</span>
+              <span class="zoom-label" title="Zoom">
+                <button id="zoom-out" class="icon-button" type="button" title="Afastar">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 7.2h10v1.6H3z"/></svg>
+                </button>
+                <input id="zoom" type="range" min="1" max="40" step="0.1" value="1" />
+                <button id="zoom-in" class="icon-button" type="button" title="Aproximar">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7.2 3h1.6v4.2H13v1.6H8.8V13H7.2V8.8H3V7.2h4.2z"/></svg>
+                </button>
+              </span>
+            </div>
+          </div>
+          <aside class="editor-settings">
+            <strong>Ajustes</strong>
+            <label>Limiar <output id="silence-db-value">-30 dB</output>
+              <input id="silence-db" type="range" min="-60" max="-12" step="1" value="-30" />
+            </label>
+            <label>Duração mínima <output id="silence-min-value">0,35 s</output>
+              <input id="silence-min" type="range" min="0.1" max="2" step="0.05" value="0.35" />
+            </label>
+            <label>Folga <output id="pad-value">0,08 s</output>
+              <input id="pad" type="range" min="0" max="0.4" step="0.01" value="0.08" />
+            </label>
+            <button id="analyze" type="button">Detectar</button>
+            <button id="finish" type="button" title="Terminar e substituir">Terminar</button>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <script src="markdown.js"></script>
+    <script src="arrange.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

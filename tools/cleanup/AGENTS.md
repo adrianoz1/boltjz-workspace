@@ -4,9 +4,9 @@ Leia isto antes de usar ou alterar a ferramenta.
 
 ## Quando usar
 
-A narração já passou pelo `narration.sh` e ainda tem pausa ou frase recomeçada. Esta ferramenta corta os dois e deixa a última tomada.
+A narração já passou pelo `narration.sh` e ainda tem pausa. O comando `boltjz silence-detection` detecta só silêncio. `--repeats-only` continua disponível para teste, mas não é o padrão.
 
-Não use para acelerar, mudar volume ou transcrever um Reel. Silêncio não usa modelo. Repetição usa só o `whisper-1` por causa do timestamp de cada palavra.
+Não use para acelerar, mudar volume ou transcrever um Reel. Silêncio não usa modelo.
 
 ## Comando
 
@@ -19,6 +19,7 @@ Rode a partir de `tools/cleanup`:
 - `--silence-only` não envia áudio para fora.
 - `--repeats-only` não mexe em pausa.
 - `--words` troca a API por um JSON com `[{"word","start","end"}]`. Serve para testar e para reaproveitar uma transcrição.
+- `--apply-cuts arquivo.cuts.json` só renderiza essa lista. Não detecta de novo e não chama a API. Use depois de editar os cortes.
 - Sem `--words`, a repetição exige `OPENAI_API_KEY` e envia o áudio ao `whisper-1` com `language=pt`.
 
 ## Sucesso

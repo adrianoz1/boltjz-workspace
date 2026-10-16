@@ -64,6 +64,14 @@ boltjz reel "https://www.instagram.com/reel/CODIGO/"
 
 O Reel exige sessão logada no Instagram. O detalhe de cookies está em `tools/transcribe/README.md`.
 
+## App de mesa
+
+```bash
+pnpm --filter @boltjz/desktop start
+```
+
+Grava pelo microfone escolhido, acelera, corta e exporta mp3. A pasta dos projetos começa em `~/Documents/video-bolt` e pode ser trocada.
+
 ## Onde está cada ferramenta
 
 | Pasta | O que faz |
@@ -72,7 +80,7 @@ O Reel exige sessão logada no Instagram. O detalhe de cookies está em `tools/t
 | `tools/narration/` | Acelera e sobe o volume |
 | `tools/cleanup/` | Corta silêncio e repetição |
 | `tools/transcribe/` | Transcreve YouTube e Reel |
-| `apps/` | Plataformas web, quando existirem |
+| `apps/desktop/` | App de mesa para gravar, acelerar, cortar e exportar a narração |
 | `packages/` | Código compartilhado, só quando duas ferramentas precisarem dele |
 
 O contrato que um agente deve ler está no `AGENTS.md` de cada pasta.
