@@ -92,6 +92,22 @@ assert cut["end"] < 2.0, cut
 assert not any(item["start"] <= 3.2 <= item["end"] for item in cuts)
 PY
 
+ffmpeg -y -hide_banner -loglevel error \
+    -f lavfi -i "sine=frequency=440:sample_rate=44100:duration=3" \
+    -c:a pcm_s16le \
+    "$TMP_DIR/apply.wav"
+
+cat > "$TMP_DIR/apply.cuts.json" <<'EOF'
+{"cuts":[{"kind":"silence","start":1.0,"end":2.0,"action":"remove"}]}
+EOF
+
+apply_stdout="$("$SCRIPT_DIR/cleanup.py" "$TMP_DIR/apply.wav" --apply-cuts "$TMP_DIR/apply.cuts.json")"
+apply_output="$(printf '%s\n' "$apply_stdout" | sed -n 's/^OUTPUT=//p')"
+[ -f "$apply_output" ] || fail "wav do apply-cuts não existe"
+apply_duration="$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$apply_output")"
+awk -v duration="$apply_duration" 'BEGIN { exit !(duration > 1.8 && duration < 2.2) }' \
+    || fail "apply-cuts não removeu o meio: $apply_duration"
+
 "$SCRIPT_DIR/cleanup.py" --help >/dev/null
 
 set +e

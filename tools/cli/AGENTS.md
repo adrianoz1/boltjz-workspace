@@ -4,7 +4,7 @@ Leia isto antes de chamar uma ferramenta do Bolt.
 
 ## Quando usar
 
-Use `boltjz` para acelerar narração, cortar pausa e repetição, ou transcrever YouTube e Reel. Não chame os scripts direto, a menos que esteja depurando um deles.
+Use `boltjz` para acelerar narração, detectar silêncio, ou transcrever YouTube e Reel. Não chame os scripts direto, a menos que esteja depurando um deles.
 
 ## Comandos
 
@@ -12,7 +12,7 @@ Use `boltjz` para acelerar narração, cortar pausa e repetição, ou transcreve
 boltjz help
 boltjz upgrade
 boltjz narration <arquivo> [opções de narration.sh]
-boltjz cleanup <arquivo> [opções de cleanup.py]
+boltjz silence-detection <arquivo> [opções de cleanup.py]
 boltjz youtube <url>
 boltjz reel <url>
 ```
@@ -22,7 +22,7 @@ O que vem depois do arquivo ou da URL é repassado. O stdout e o exit code são 
 Antes de interpretar o resultado, leia o `AGENTS.md` do comando:
 
 - `narration` imprime `OUTPUT=`
-- `cleanup` imprime `OUTPUT=` e `CUTS=`
+- `silence-detection` imprime `OUTPUT=` e `CUTS=`. O padrão detecta só silêncio. `cleanup` continua como alias.
 - `youtube` e `reel` gravam `roteiro.txt` e `transcript.json` numa pasta datada
 
 ## Upgrade

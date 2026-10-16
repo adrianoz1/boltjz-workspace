@@ -30,7 +30,7 @@ def die(code: int, message: str) -> None:
 
 
 def usage() -> str:
-    return """Corta silêncios e repetições de uma narração.
+    return """Detecta e corta silêncio de uma narração. O padrão não procura repetição.
 
 Uso:
   cleanup.py <arquivo> [opções]
@@ -44,6 +44,7 @@ Opções:
   --silence-only      Só corta silêncio, sem chamar a API
   --repeats-only      Só corta repetição
   --words ARQUIVO     Usa esta lista de palavras em vez do whisper-1
+  --apply-cuts ARQUIVO  Renderiza este JSON, sem detectar de novo
   --out CAMINHO       Arquivo wav de saída
   -h, --help          Mostra este contrato
 
@@ -450,6 +451,43 @@ def render(source: Path, destination: Path, keeps: list[tuple[float, float]]) ->
         die(3, message)
 
 
+def apply_edited_cuts(source: Path, cuts_file: Path, explicit_out: str | None) -> None:
+    try:
+        payload = json.loads(cuts_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        die(1, f"Não li os cortes: {exc}")
+    raw = payload.get("cuts") if isinstance(payload, dict) else payload
+    if not isinstance(raw, list):
+        die(1, "O JSON precisa ter uma lista cuts")
+
+    cuts = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        if item.get("action", "remove") != "remove":
+            continue
+        start = float(item["start"])
+        end = float(item["end"])
+        if end <= start:
+            continue
+        kind = item.get("kind", "silence")
+        if kind not in ("silence", "repetition"):
+            kind = "silence"
+        cuts.append(remove_cut(kind, start, end, str(item.get("text", "")), str(item.get("kept", ""))))
+    cuts.sort(key=lambda cut: (cut["start"], cut["end"]))
+
+    wav_path, _default_cuts = output_paths(source, explicit_out)
+    if wav_path == source or cuts_file.resolve() == source:
+        die(1, "A saída não pode ser o arquivo original")
+    keeps = keep_ranges(probe_duration(source), cuts)
+    print(f"Renderizando {len(keeps)} trechos a partir dos cortes editados", file=sys.stderr)
+    render(source, wav_path, keeps)
+    updated = {"input": str(source), "output": str(wav_path), "cuts": cuts}
+    cuts_file.write_text(json.dumps(updated, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"OUTPUT={wav_path}")
+    print(f"CUTS={cuts_file.resolve()}")
+
+
 def output_paths(source: Path, explicit: str | None) -> tuple[Path, Path]:
     if explicit:
         wav = abs_path(Path(explicit))
@@ -472,6 +510,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--silence-only", action="store_true")
     parser.add_argument("--repeats-only", action="store_true")
     parser.add_argument("--words")
+    parser.add_argument("--apply-cuts")
     parser.add_argument("--out")
     parser.add_argument("-h", "--help", action="store_true")
     return parser
@@ -492,8 +531,15 @@ def main() -> None:
     if not source.is_file():
         die(1, f"Arquivo não encontrado: {source}")
 
-    do_silence = not args.repeats_only or args.silence_only
-    do_repeats = not args.silence_only or args.repeats_only
+    if args.apply_cuts:
+        require_commands(["ffmpeg", "ffprobe"])
+        if not has_audio(source):
+            die(1, f"O arquivo não tem faixa de áudio: {source}")
+        apply_edited_cuts(source, abs_path(Path(args.apply_cuts)), args.out)
+        return
+
+    do_repeats = args.repeats_only and not args.silence_only
+    do_silence = not do_repeats
     commands = ["ffmpeg", "ffprobe"]
     if do_repeats and not args.words:
         commands.append("curl")

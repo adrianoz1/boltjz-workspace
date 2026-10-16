@@ -1,0 +1,13 @@
+{
+  "name": "@boltjz/desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "App de mesa para gravar e revisar a narração do Bolt",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^35.7.5"
+  }
+}
